@@ -37,22 +37,24 @@ def mass_of_pairs(pair):
     ppair = p1 + p2
     return ppair.M()
 
-num_events = data.GetEntries()
+if __name__ == '__main__':
+    data = TChain("mini")
+    data.Add("http://opendata.atlas.cern/release/samples/Data/DataMuons.root")    
 
-h_mpair = TH1F("mpair", "Invariant mass of lepton pairs", 50, 0, 200)
+    h_mpair = TH1F("mpair", "Invariant mass of lepton pairs", 50, 0, 200)
 
-number_events_to_process = 10000   # Number of events to process
-for i_event in range(number_events_to_process):
-    data.GetEntry(i_event)
-    n_leptons = data.lep_n
-    if n_leptons >= 2:  # Looking for pairs
-        leptons = leptons_from_event(data)
-        pairs = pairs_from_particles(leptons)
-        # Calculates mass of lepton pair
-        for pair in pairs:
-            mpair = mass_of_pairs(pair) / 1000 # convert from MeV to GeV
-            h_mpair.Fill(mpair)
+    number_events_to_process = 10000   # Number of events to process
+    for i_event in range(number_events_to_process):
+        data.GetEntry(i_event)
+        n_leptons = data.lep_n
+        if n_leptons >= 2:  # Looking for pairs
+            leptons = leptons_from_event(data)
+            pairs = pairs_from_particles(leptons)
+            # Calculates mass of lepton pair
+            for pair in pairs:
+                mpair = mass_of_pairs(pair) / 1000 # convert from MeV to GeV
+                h_mpair.Fill(mpair)
 
-h_mpair.Draw()
-print()
-raw_input("Press return to end program")
+    h_mpair.Draw()
+    print()
+    raw_input("Press return to end program")
