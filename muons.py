@@ -2,9 +2,6 @@
 
 from ROOT import TChain, TLorentzVector, TH1F
 
-data = TChain("mini")
-data.Add("http://opendata.atlas.cern/release/samples/Data/DataMuons.root")
-
 def four_momentum(i_lepton, tree):
     pt = tree.lep_pt[i_lepton]
     eta = tree.lep_eta[i_lepton]
@@ -15,27 +12,40 @@ def four_momentum(i_lepton, tree):
     return p
 
 def leptons_from_event(tree):
+    '''
+    Gets list of leptons as particle objects
+    '''
     leptons = []
-    n_lepton = data.lep_n
-    for i in range(n_lepton):
-        p = four_momentum(i, tree)
-        leptons.append(p)
+    n_leptons = data.lep_n
+    for i_lepton in range(n_leptons):
+        p = four_momentum(i_lepton, tree)
+        q = tree.lep_charge[i_lepton]
+        particle = Particle(p, q)
+        leptons.append(particle)
     return leptons
 
 def pairs_from_particles(particles):
     pairs = []
     n_particles = len(particles)
     for i in range(n_particles-1):
+        charge_i = particles[i].q
         for j in range(i+1, n_particles):
+            charge_j = particles[j].q
             pair = (particles[i], particles[j])
-            pairs.append(pair)
+            if charge_i != charge_j:
+                pairs.append(pair)
     return pairs
 
 def mass_of_pairs(pair):
-    p1 = pair[0]
-    p2 = pair[1]
+    p1 = pair[0].p
+    p2 = pair[1].p
     ppair = p1 + p2
     return ppair.M()
+
+class Particle:
+    def __init__(self, p, q):
+        self.p = p
+        self.q = q
 
 if __name__ == '__main__':
     data = TChain("mini")
